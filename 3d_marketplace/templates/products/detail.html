@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.title }} - 3D Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:catalog' %}">Каталог</a></li>
+            {% if product.category %}
+            <li class="breadcrumb-item"><a href="{% url 'products:category' product.category.slug %}">{{ product.category.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ product.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Изображения -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    {% if product.product_images.first.image %}
+                        <img src="{{ product.product_images.first.image.url }}" class="img-fluid w-100 rounded" alt="{{ product.title }}">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                            <i class="bi bi-image text-muted fs-1"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Информация о товаре -->
+        <div class="col-md-6 mb-4">
+            <h1 class="mb-2">{{ product.title }}</h1>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary me-2">{{ product.get_product_type_display }}</span>
+                {% if product.seller.seller_profile.is_verified %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Проверенный продавец</span>
+                {% endif %}
+            </div>
+            
+            <div class="rating-stars mb-3">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= product.rating|floatformat:"0"|int %}
+                        <i class="bi bi-star-fill"></i>
+                    {% else %}
+                        <i class="bi bi-star"></i>
+                    {% endif %}
+                {% endfor %}
+                <span class="text-muted ms-2">({{ product.reviews_count }} отзывов)</span>
+            </div>
+            
+            <div class="mb-4">
+                {% if product.old_price %}
+                    <span class="text-decoration-line-through text-muted h4">{{ product.old_price }} ₽</span>
+                    <span class="badge bg-danger ms-2">-{{ product.discount_percentage }}%</span>
+                {% endif %}
+                <h2 class="d-inline fw-bold">{{ product.price }} ₽</h2>
+            </div>
+            
+            <p class="text-muted">{{ product.description }}</p>
+            
+            <!-- Характеристики -->
+            {% if product.material or product.color or product.weight or product.dimensions %}
+            <div class="card bg-light mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Характеристики</h6>
+                    <table class="table table-sm table-borderless mb-0">
+                        {% if product.material %}
+                        <tr>
+                            <td class="text-muted">Материал:</td>
+                            <td><strong>{{ product.material }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if product.color %}
+                        <tr>
+                            <td class="text-muted">Цвет:</td>
+                            <td><strong>{{ product.color }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if product.weight %}
+                        <tr>
+                            <td class="text-muted">Вес:</td>
+                            <td><strong>{{ product.weight }} г</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if product.dimensions %}
+                        <tr>
+                            <td class="text-muted">Габариты:</td>
+                            <td><strong>{{ product.dimensions }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if product.filament_diameter %}
+                        <tr>
+                            <td class="text-muted">Диаметр филамента:</td>
+                            <td><strong>{{ product.filament_diameter }}</strong></td>
+                        </tr>
+                        {% endif %}
+                        {% if product.file_format %}
+                        <tr>
+                            <td class="text-muted">Формат файла:</td>
+                            <td><strong>{{ product.file_format }}</strong></td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Кнопки действий -->
+            <div class="d-grid gap-2">
+                {% if product.is_in_stock %}
+                    <button class="btn btn-primary btn-lg">
+                        <i class="bi bi-cart-plus"></i> Добавить в корзину
+                    </button>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        Нет в наличии
+                    </button>
+                {% endif %}
+                <button class="btn btn-outline-danger">
+                    <i class="bi bi-heart"></i> В избранное
+                </button>
+            </div>
+            
+            <!-- Продавец -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Продавец</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            {{ product.seller.username|first|upper }}
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ product.seller.username }}</h6>
+                            {% if product.seller.seller_profile %}
+                                <p class="mb-0 text-muted small">Рейтинг: {{ product.seller.seller_profile.rating }}/5.0</p>
+                            {% endif %}
+                        </div>
+                        <a href="#" class="btn btn-outline-primary ms-auto btn-sm">
+                            Написать
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Описание -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Описание товара</h3>
+            <p>{{ product.description|linebreaks }}</p>
+        </div>
+    </div>
+    
+    <!-- Похожие товары -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Похожие товары</h3>
+        </div>
+        {% for rp in related_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card product-card h-100">
+                {% if rp.product_images.first.image %}
+                    <img src="{{ rp.product_images.first.image.url }}" class="card-img-top product-img" alt="{{ rp.title }}">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center product-img">
+                        <i class="bi bi-image text-muted fs-1"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ rp.title }}</h6>
+                    <p class="fw-bold">{{ rp.price }} ₽</p>
+                </div>
+                <div class="card-footer bg-white border-0 pb-3">
+                    <a href="{% url 'products:detail' rp.pk %}" class="btn btn-outline-primary w-100 btn-sm">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
