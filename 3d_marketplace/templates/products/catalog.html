@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог - 3D Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Каталог товаров</h2>
+    
+    <div class="row">
+        <!-- Фильтры -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="mb-3">Фильтры</h5>
+                    <form method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Тип товара</label>
+                            <select name="type" class="form-select">
+                                <option value="">Все типы</option>
+                                <option value="product">Товар</option>
+                                <option value="service">Услуга</option>
+                                <option value="model">3D Модель</option>
+                                <option value="filament">Филамент</option>
+                                <option value="printer">3D Принтер</option>
+                                <option value="part">Запчасть</option>
+                                <option value="printed_item">Готовое изделие</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Категория</label>
+                            <select name="category" class="form-select">
+                                <option value="">Все категории</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Цена от</label>
+                            <input type="number" name="min_price" class="form-control" placeholder="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Цена до</label>
+                            <input type="number" name="max_price" class="form-control" placeholder="100000">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i> Применить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Товары -->
+        <div class="col-md-9">
+            <!-- Сортировка -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="mb-0 text-muted">Найдено товаров: {{ products.count }}</p>
+                <select class="form-select w-auto" onchange="location.href=this.value">
+                    <option value="?sort=-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>Сначала новые</option>
+                    <option value="?sort=price" {% if request.GET.sort == 'price' %}selected{% endif %}>Сначала дешевые</option>
+                    <option value="?sort=-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Сначала дорогие</option>
+                    <option value="?sort=-rating" {% if request.GET.sort == '-rating' %}selected{% endif %}>По рейтингу</option>
+                </select>
+            </div>
+            
+            <!-- Сетка товаров -->
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card product-card h-100">
+                        {% if product.product_images.first.image %}
+                            <img src="{{ product.product_images.first.image.url }}" class="card-img-top product-img" alt="{{ product.title }}">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center product-img">
+                                <i class="bi bi-image text-muted fs-1"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <span class="badge bg-secondary mb-2">{{ product.get_product_type_display }}</span>
+                            <h5 class="card-title">{{ product.title }}</h5>
+                            <p class="card-text text-muted small">{{ product.description|truncatewords:8 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    {% if product.old_price %}
+                                        <span class="text-decoration-line-through text-muted small">{{ product.old_price }} ₽</span>
+                                    {% endif %}
+                                    <span class="fw-bold fs-5">{{ product.price }} ₽</span>
+                                </div>
+                                <div class="rating-stars">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span class="small text-muted">{{ product.rating }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                            <a href="{% url 'products:detail' product.pk %}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="bi bi-eye"></i> Подробнее
+                            </a>
+                            <a href="#" class="btn btn-primary w-100">
+                                <i class="bi bi-cart-plus"></i> В корзину
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-box-seam fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">Товары не найдены</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
