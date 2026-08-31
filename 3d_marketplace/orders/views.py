@@ -14,7 +14,12 @@ def get_or_create_cart(request):
         cart_id = request.session.get('cart_id')
         if cart_id:
             cart = Cart.objects.filter(id=cart_id).first()
+            if not cart:
+                # Создаем корзину без пользователя для гостя
+                cart = Cart.objects.create()
+                request.session['cart_id'] = cart.id
         else:
+            # Создаем корзину без пользователя для гостя
             cart = Cart.objects.create()
             request.session['cart_id'] = cart.id
     return cart
