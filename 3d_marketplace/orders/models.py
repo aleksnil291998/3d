@@ -96,7 +96,7 @@ class OrderItem(models.Model):
 class Cart(models.Model):
     """Корзина покупок"""
     
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart', verbose_name='Пользователь')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart', verbose_name='Пользователь', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     
@@ -105,7 +105,9 @@ class Cart(models.Model):
         verbose_name_plural = 'Корзины'
     
     def __str__(self):
-        return f"Корзина {self.user.username}"
+        if self.user:
+            return f"Корзина {self.user.username}"
+        return f"Корзина гостя #{self.id}"
     
     @property
     def total_amount(self):

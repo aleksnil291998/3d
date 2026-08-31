@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Оформление заказа - 3D Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4"><i class="bi bi-bag-check"></i> Оформление заказа</h1>
+    
+    {% if items %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-person"></i> Контактная информация</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ user.email }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Телефон *</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           placeholder="+7 (___) ___-__-__" required>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h5 class="mb-3"><i class="bi bi-geo-alt"></i> Адрес доставки</h5>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">Город *</label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="postal_code" class="form-label">Почтовый индекс *</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Адрес доставки (улица, дом, квартира) *</label>
+                                <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h5 class="mb-3"><i class="bi bi-journal-text"></i> Комментарий к заказу</h5>
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Дополнительная информация</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="Пожелания к доставке, комментарии к товарам и т.д."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
+                                <i class="bi bi-check-circle"></i> Подтвердить заказ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Ваш заказ</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in items %}
+                            <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
+                                <img src="{{ item.product.image.url|default:'/static/img/placeholder.png' }}" 
+                                     alt="{{ item.product.title }}" 
+                                     class="rounded me-2" 
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 small">{{ item.product.title }}</h6>
+                                    <p class="mb-0 small text-muted">{{ item.quantity }} x {{ item.product.price }} ₽</p>
+                                </div>
+                                <span class="fw-bold">{{ item.total }} ₽</span>
+                            </div>
+                        {% endfor %}
+                        
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Товары ({{ cart.items_count }}):</span>
+                            <span>{{ cart.total_amount }} ₽</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Доставка:</span>
+                            <span>Бесплатно</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Итого к оплате:</strong>
+                            <strong class="text-primary fs-4">{{ cart.total_amount }} ₽</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <small>
+                        <i class="bi bi-info-circle"></i> 
+                        После подтверждения заказа менеджер свяжется с вами для уточнения деталей.
+                    </small>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x" style="font-size: 5rem; color: #ccc;"></i>
+            <h3 class="mt-4">Корзина пуста</h3>
+            <p class="text-muted">Добавьте товары перед оформлением заказа</p>
+            <a href="{% url 'products:catalog' %}" class="btn btn-primary mt-3">
+                <i class="bi bi-shop"></i> Перейти в каталог
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

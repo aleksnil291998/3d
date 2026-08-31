@@ -24,7 +24,7 @@ urlpatterns = [
     path('', include('core.urls', namespace='core')),
     path('users/', include('users.urls', namespace='users')),
     path('products/', include('products.urls', namespace='products')),
-    path('orders/', include('orders.urls', namespace='orders')),
+    path('', include('orders.urls', namespace='orders')),
 ]
 
 if settings.DEBUG:
